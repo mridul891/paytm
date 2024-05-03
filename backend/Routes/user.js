@@ -3,7 +3,8 @@ const router = express.Router();
 const zod = require("zod");
 const jwt = require("jsonwebtoken");
 const { JSONWEBSECRET } = require('../config');
-const { User } = require('../db')
+const { User } = require('../db');
+const { authMiddleware } = require("../middleware/middleware");
 
 const signupBody = zod.object({
     username: zod.string().email(),
@@ -16,6 +17,14 @@ const signinBody = zod.object({
     username: zod.string().email(),
     password: zod.string()
 })
+
+const updateBody = zod.object({
+    password: zod.string().optional(),
+    firstname: zod.string().optional(),
+    lastname: zod.string().optional()
+})
+
+
 router.post('/signup', async (req, res) => {
     const { success } = signupBody.safeParse(req.body)
     if (!success) {
@@ -23,12 +32,9 @@ router.post('/signup', async (req, res) => {
             message: " Email already taken / Incorrect Inputs"
         })
     }
-
-    console.log(req.body.username)
     const existingUser = await User.findOne({
         username: req.body.username
     })
-    console.log("gss")
     if (existingUser) {
         res.status(411).json({
             message: " The user is already present in the datbase"
@@ -38,7 +44,7 @@ router.post('/signup', async (req, res) => {
     const user = await User.create({
         username: req.body.username,
         password: req.body.password,
-        firstname: req.body.username,
+        firstname: req.body.firstname,
         lastname: req.body.lastname,
     })
 
@@ -48,7 +54,6 @@ router.post('/signup', async (req, res) => {
         userId
     }, JSONWEBSECRET);
 
-    console.log("h")
     res.json({
         message: "The user successfully connected",
         token: token
@@ -79,4 +84,31 @@ router.post('/signin', async (req, res) => {
     res.status(401).json({ message: "Error while logging in" })
 })
 
+router.put('/updateinfo', authMiddleware, async (req, res) => {
+    const { success } = updateBody.safeParse(req.body)
+    if (!success) {
+        res.status(411).json({
+            message: "Something went wrong || Bad Credentials"
+        })
+    }
+
+    await User.updateOne({ _id: req.userId }, req.body);
+
+    res.status(200).json({
+        message: "Information is Updated"
+    })
+
+})
+
+router.get('/bulk', authMiddleware, async (req, res) => {
+    const query = req.query.filter;
+
+    const user = await User.findOne({
+        firstname: req.query.filter
+    })
+
+    console.log(user)
+    return;
+
+})
 module.exports = router;

@@ -6,8 +6,8 @@ const authMiddleware = async (req, res, next) => {
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({});
     }
+    const token = authHeader.split(' ')[1];
 
-    const token = authHeader.split('')[1];
     try {
         const decode = jwt.verify(token, JSONWEBSECRET);
         req.userId = decode.userId;
