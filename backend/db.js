@@ -1,17 +1,13 @@
-// backend/db.js
-const mongoose = require('mongoose');
+const mongoose = require("mongoose")
 
-// Create a Schema for Users
-const userSchema = new mongoose.Schema({
-    username: String,
-    password: String,
+mongoose.connect('mongodb+srv://pandeymridulwork:mridul891@paytm.gzqo0ig.mongodb.net/').then(() => console.log("mongodb connected"))
+
+const userSchema = mongoose.Schema({
+    Username: String,
     firstName: String,
-    lastName: String
-});
+    LastName: String,
+    Password: String
+})
 
-// Create a model from the schema
-const User = mongoose.model('User', userSchema);
-
-module.exports = {
-    User
-};
+const User = mongoose.model("User", userSchema)
+module.exports = { User }
