@@ -1,7 +1,10 @@
 const express = require("express");
 const mainRouter = require("./routes/index")
+const cors = require("cors")
 
-mongoose.connect('mongodb+srv://pandeymridulwork:mridul891@paytm.gzqo0ig.mongodb.net/').then(() => console.log("mongodb connected"))
+app.use(cors())
+app.use(express.json())
+
 
 app.use("/api/v1", mainRouter)
 app.listen(port, () => {
